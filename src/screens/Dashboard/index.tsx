@@ -29,14 +29,29 @@ export const Dashboard = () => {
               <UserName>Lucas</UserName>
             </User>
           </UserInfo>
+          <Icon name="power" />
         </UserWrapper>
-        <Icon name="power" />
       </Header>
-      <HighlightCards>        
-        <HighlightCard />
-        <HighlightCard />
-        <HighlightCard />
-      </HighlightCards >
+      <HighlightCards>
+        <HighlightCard
+          type="up"
+          title="Entradas"
+          amount="R$ 17.400,00"
+          lastTransaction="Ultima entrada dia 13 de abril"
+        />
+        <HighlightCard
+          type="down"
+          title="Saídas"
+          amount="R$ 1.400,00"
+          lastTransaction="Ultima entrada dia 13 de abril"
+        />
+        <HighlightCard
+          type="total"
+          title="Total"
+          amount="R$ 17.400,00"
+          lastTransaction="Ultima entrada dia 13 de abril"
+        />
+      </HighlightCards>
     </Container>
   );
 };
