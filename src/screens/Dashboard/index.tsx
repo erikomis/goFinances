@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
 import {
   Container,
@@ -14,51 +16,63 @@ import {
   Transactions,
   Title,
   TransactionList,
+  LogoutButton,
 } from "./styles";
 
 import { HighlightCard } from "../../components/HighlightCard";
-import { TransactionCard, TransactionCardProps } from "../../components/TransactionCard";
+import {
+  TransactionCard,
+  TransactionCardProps,
+} from "../../components/TransactionCard";
 
 export interface DataListProps extends TransactionCardProps {
   id: string;
 }
 
-const data:DataListProps[] = [
-  {
-    id: "1",
-    type: "positive",
-    title: "Desenvolvimento de sistemas",
-    amount: "R$ 15.500,00",
-    category: {
-      name: "Vendas",
-      icon: "dollar-sign",
-    },
-    date: "13/04/2021",
-  },
-  {
-    id: "2",
-    type: "negative",
-    title: "Compra de comida",
-    amount: "R$ 15.500,00",
-    category: {
-      name: "Alimentação",
-      icon: "coffee",
-    },
-    date: "13/04/2021",
-  },
-  {
-    id: "3",
-    type: "negative",
-    title: "Desenvolvimento de componentes",
-    amount: "R$ 15.500,00",
-    category: {
-      name: "Compra",
-      icon: "shopping-bag",
-    },
-    date: "13/04/2021",
-  },
-];
 export const Dashboard = () => {
+  const [data, setData] = React.useState<DataListProps[]>([]);
+
+  async function loadData() {
+    const dataKey = "@gofinances:transactions";
+    const response = await AsyncStorage.getItem(dataKey);
+    const responseFormatted = response ? JSON.parse(response) : [];
+
+    console.log(responseFormatted);
+    const transactions = responseFormatted.map((item: DataListProps) => {
+      const amount = Number(item.amount).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+
+      const date = Intl.DateTimeFormat("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      }).format(new Date(item.date));
+
+      return {
+        id: item.id,
+        name: item.name,
+        amount,
+        type: item.type,
+        category: item.category,
+        date,
+      };
+    });
+    setData(transactions);
+  }
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [])
+  );
+
+
   return (
     <Container>
       <Header>
@@ -74,7 +88,10 @@ export const Dashboard = () => {
               <UserName>Lucas</UserName>
             </User>
           </UserInfo>
-          <Icon name="power" />
+
+          <LogoutButton>
+            <Icon name="power" onPress={() => console.log("sair ")} />
+          </LogoutButton>
         </UserWrapper>
       </Header>
       <HighlightCards>
@@ -101,13 +118,11 @@ export const Dashboard = () => {
       <Transactions>
         <Title>Listagem</Title>
 
-        {data ? (
-          <TransactionList
-            data={data}
-            renderItem={({ item }) => <TransactionCard data={item} />}
-            keyExtractor={(item) => item.id.toString()}
-          />
-        ) : null}
+        <TransactionList
+          data={data}
+          renderItem={({ item }) => <TransactionCard data={item} />}
+          keyExtractor={(item) => item.id.toString()}
+        />
       </Transactions>
     </Container>
   );
