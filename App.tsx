@@ -1,6 +1,7 @@
 import 'intl';
 import 'intl/locale-data/jsonp/pt-BR';
 import React, { useEffect } from "react";
+import { StatusBar } from "react-native";
 import { ThemeProvider } from "styled-components";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-gesture-handler";
@@ -49,6 +50,12 @@ export default function App() {
         }}
       >
         <NavigationContainer>
+          <StatusBar  
+            barStyle="light-content"
+            backgroundColor="transparent"
+            translucent
+          />
+
           <AppRoutes />
         </NavigationContainer>
       </GestureHandlerRootView>
