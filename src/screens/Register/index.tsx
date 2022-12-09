@@ -28,14 +28,15 @@ import {
   Fields,
   TransactionTypes,
 } from "./styles";
+import { useAuth } from "../../context/AuthContext";
 
 interface FormData {
   [name: string]: string;
 }
 
 type NavigationProps = {
-  navigate:(screen:string) => void;
-}
+  navigate: (screen: string) => void;
+};
 
 const schema = Yup.object().shape({
   name: Yup.string().required("Nome é obrigatório"),
@@ -48,13 +49,13 @@ const schema = Yup.object().shape({
 export const Register = () => {
   const [transactionType, setTransactionType] = useState("");
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
-
+  const { user } = useAuth();
   const [category, setCategory] = useState({
     key: "category",
     name: "Categoria",
   });
 
-  const navigation = useNavigation<NavigationProps>()
+  const navigation = useNavigation<NavigationProps>();
 
   const {
     control,
@@ -86,15 +87,14 @@ export const Register = () => {
       id: String(uuid.v4()),
       name: form.name,
       amount: form.amount,
-      type:transactionType,
+      type: transactionType,
       category: category.key,
       date: new Date(),
     };
     console.log(data);
 
- 
     try {
-      const dataKey = "@gofinances:transactions";
+      const dataKey = `@gofinances:transactions_user:${user.id}`;
       const currentData = await AsyncStorage.getItem(dataKey);
       const currentDataFormated = currentData ? JSON.parse(currentData) : [];
 
@@ -107,12 +107,10 @@ export const Register = () => {
         key: "category",
         name: "Categoria",
       });
-  
+
       reset();
 
       navigation.navigate("Listagem");
-
-
     } catch (error) {
       Alert.alert("Não foi possível salvar");
     }
