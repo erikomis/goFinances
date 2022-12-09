@@ -1,10 +1,11 @@
-import 'intl';
-import 'intl/locale-data/jsonp/pt-BR';
+import "intl";
+import "intl/locale-data/jsonp/pt-BR";
 import React, { useEffect } from "react";
 import { StatusBar } from "react-native";
 import { ThemeProvider } from "styled-components";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-gesture-handler";
+import { AuthProvider, useAuth } from "./src/context/AuthContext";
 
 import * as SplashScreen from "expo-splash-screen";
 import {
@@ -15,15 +16,16 @@ import {
 } from "@expo-google-fonts/poppins";
 
 import theme from "./src/global/styles/theme";
-import { NavigationContainer } from '@react-navigation/native';
-import { AppRoutes } from "./src/routes/app.routes";
+import { Routes } from "./src/routes/";
+import { SignIn } from "./src/screens/SignIn";
+
 export default function App() {
   const [isLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_500Medium,
     Poppins_700Bold,
   });
-
+  const { loading } = useAuth();
   useEffect(() => {
     const showSplashScreen = async () => {
       await SplashScreen.preventAutoHideAsync();
@@ -40,7 +42,7 @@ export default function App() {
     if (isLoaded) hideSplashScreen();
   }, [isLoaded]);
 
-  if (!isLoaded) return null;
+  if (!isLoaded || loading) return null;
 
   return (
     <ThemeProvider theme={theme}>
@@ -49,15 +51,14 @@ export default function App() {
           flex: 1,
         }}
       >
-        <NavigationContainer>
-          <StatusBar  
-            barStyle="light-content"
-            backgroundColor="transparent"
-            translucent
-          />
-
-          <AppRoutes />
-        </NavigationContainer>
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor="transparent"
+          translucent
+        />
+        <AuthProvider>
+          <Routes />
+        </AuthProvider>
       </GestureHandlerRootView>
     </ThemeProvider>
   );
