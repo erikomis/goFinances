@@ -23,6 +23,7 @@ import {
 import { RFValue } from "react-native-responsive-fontsize";
 import { useTheme } from "styled-components";
 import { useFocusEffect } from "@react-navigation/native";
+import { useAuth } from "../../context/AuthContext";
 
 interface TransactionData {
   type: "positive" | "negative";
@@ -46,6 +47,7 @@ export const Resume = () => {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const { user } = useAuth();
   const theme = useTheme();
 
   const handleDateChange = (action: "next" | "prev") => {
@@ -58,7 +60,7 @@ export const Resume = () => {
 
   const loadData = async () => {
     setIsLoading(true);
-    const dataKey = "@gofinances:transactions";
+    const dataKey = `@gofinances:transactions_user:${user.id}`;
     const response = await AsyncStorage.getItem(dataKey);
     const data = response ? JSON.parse(response) : [];
 
