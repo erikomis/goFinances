@@ -27,6 +27,7 @@ import {
   TransactionCard,
   TransactionCardProps,
 } from "../../components/TransactionCard";
+import { useAuth } from "../../context/AuthContext";
 
 export interface DataListProps extends TransactionCardProps {
   id: string;
@@ -48,7 +49,7 @@ export const Dashboard = () => {
   const [highlightData, setHighlightData] = useState<HighlightData>(
     {} as HighlightData
   );
-
+  const { user, signOut } = useAuth();
   const theme = useTheme();
 
   function getLastTransactionDate(
@@ -79,7 +80,7 @@ export const Dashboard = () => {
   }
 
   async function loadData() {
-    const dataKey = "@gofinances:transactions";
+    const dataKey = `@gofinances:transactions_user:${user.id}`;
     const response = await AsyncStorage.getItem(dataKey);
     const responseFormatted = response ? JSON.parse(response) : [];
 
@@ -124,7 +125,10 @@ export const Dashboard = () => {
       transactions,
       "negative"
     );
-    const totalInterval = `01 a ${lastTransactionExpensive}`;
+    const totalInterval =
+      lastTransactionExpensive === "0"
+        ? "Não há transações"
+        : `01 a ${lastTransactionExpensive}`;
 
     const total = entriesSum - expensiveSum;
     setHighlightData({
@@ -133,14 +137,20 @@ export const Dashboard = () => {
           style: "currency",
           currency: "BRL",
         }),
-        lastTransaction: `Ultima entrada dia ${lastTransactionEntries}`,
+        lastTransaction:
+          lastTransactionEntries === "0"
+            ? "Nao há transações"
+            : `Ultima entrada dia ${lastTransactionEntries}`,
       },
       expensive: {
         amount: expensiveSum.toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
         }),
-        lastTransaction: ` Ultima saida dia ${lastTransactionExpensive}`,
+        lastTransaction:
+          lastTransactionExpensive === "0"
+            ? "Não há transações"
+            : `Ultima saida dia ${lastTransactionExpensive}`,
       },
       total: {
         amount: total.toLocaleString("pt-BR", {
@@ -177,17 +187,17 @@ export const Dashboard = () => {
               <UserInfo>
                 <Photo
                   source={{
-                    uri: "https://avatars.githubusercontent.com/u/77300089?v=4",
+                    uri: user.photo,
                   }}
                 />
                 <User>
                   <UserGreeting>Olá,</UserGreeting>
-                  <UserName>Lucas</UserName>
+                  <UserName>{user.name}</UserName>
                 </User>
               </UserInfo>
 
               <LogoutButton>
-                <Icon name="power" onPress={() => console.log("sair ")} />
+                <Icon name="power" onPress={signOut} />
               </LogoutButton>
             </UserWrapper>
           </Header>
